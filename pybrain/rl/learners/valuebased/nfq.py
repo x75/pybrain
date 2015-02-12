@@ -47,5 +47,4 @@ class NFQ(ValueBasedLearner):
         # trainer = BackpropTrainer(self.module.network, dataset=supervised, learningrate=0.005, batchlearning=True, verbose=True)
         # trainer.trainUntilConvergence(maxEpochs=self.maxEpochs)
 
-
-
+        # try also to use extreme learning machine (ELM) here
