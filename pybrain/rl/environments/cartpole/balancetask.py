@@ -132,6 +132,7 @@ class DiscreteBalanceTask(BalanceTask):
 
     def performAction(self, action):
         action = action - (self.numActions-1)//2.
+        # print "discrete action", action
         BalanceTask.performAction(self, action)
 
     def getReward(self):

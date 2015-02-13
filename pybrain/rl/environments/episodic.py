@@ -38,6 +38,7 @@ class EpisodicTask(Task, FitnessEvaluator):
 
     def performAction(self, action):
         """ Execute one action. """
+        print "episodictask action", action
         Task.performAction(self, action)
         self.samples += 1
         self.addReward()

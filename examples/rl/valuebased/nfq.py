@@ -13,8 +13,8 @@ from numpy import array, arange, meshgrid, pi, zeros, mean
 from matplotlib import pyplot as plt
 
 # switch this to True if you want to see the cart balancing the pole (slower)
-# render = False
-render = True
+render = False
+# render = True
 
 plt.ion()
 
