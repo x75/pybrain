@@ -60,6 +60,7 @@ class ODEEnvironment(Environment):
         self.FricMu = 8.0
         self.stepsPerAction = 1
         self.stepCounter = 0
+        print("done init odeenv")
 
     def closeSocket(self):
         self.server.UDPInSock.close()

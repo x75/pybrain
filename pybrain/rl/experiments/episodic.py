@@ -41,7 +41,7 @@ class EpisodicExperiment(Experiment):
                 while not self.task.isFinished():
                     r = self._oneInteraction()
                     rewards.append(r)
-                print "rewards", rewards
+                # print "rewards", rewards
                 all_rewards.append(rewards)
-            print "all_rewards", all_rewards
+            # print "all_rewards", all_rewards
             return all_rewards
