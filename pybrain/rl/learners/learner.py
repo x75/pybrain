@@ -30,6 +30,7 @@ class ExploringLearner(Learner):
 
     def explore(self, state, action):
         if self.explorer is not None:
+            # print "learner.py: base action", action
             return self.explorer.activate(state, action)
         else:
             # logging.warning("No explorer found: no exploration could be done.")

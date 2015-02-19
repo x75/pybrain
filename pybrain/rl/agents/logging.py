@@ -55,6 +55,9 @@ class LoggingAgent(Agent):
         assert self.lastaction != None
         assert self.lastreward == None
 
+        # compare with the learner
+        print "logging.py:giveReward", self.lastobs, self.lastaction, self.lastreward
+
         self.lastreward = r
 
         # store state, action and reward in dataset if logging is enabled
