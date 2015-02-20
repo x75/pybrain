@@ -50,9 +50,16 @@ class StabilizationTask(EpisodicTask):
     def getReward(self):
         target = self.env.target # -0.4
         pos = self.env.getPosition()
+        vel = self.env.getVelocity()
+        err = target - pos
+        if err > 0:
+            reward = -vel
+        else:
+            reward = vel
         # print "(pos, target) =", pos, target
+        print "stabilizationtask.py:getReward:err", err
         # reward = -np.sum(np.abs(target - pos))
-        reward = -np.sum(np.square(target - pos))
+        # reward = -np.sum(np.square(target - pos))
         # if np.abs(err) <= 0.1:
         #     reward = 1
         # else:

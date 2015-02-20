@@ -60,9 +60,9 @@ def main(args):
     # task
     task = StabilizationTask(env, maxsteps=len_episode)
     # explorer
-    explorer = NormalExplorer(dim = 1, sigma=1e-1)
+    explorer = NormalExplorer(dim = 1, sigma = 1e-1)
     # learner
-    alpha = 1e-3
+    alpha = 1e-1
     beta  = 1e-5
     gamma = 9e-1
     learner = CACLA(module, alpha=alpha, beta=beta, gamma=gamma)

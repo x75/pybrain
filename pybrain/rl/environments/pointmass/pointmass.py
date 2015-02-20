@@ -80,3 +80,6 @@ class PointMassEnvironment(Environment):
 
     def getPosition(self):
         return self.ip2d.x[self.ti]
+    
+    def getVelocity(self):
+        return self.ip2d.v[self.ti]
