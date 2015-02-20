@@ -33,7 +33,7 @@ class ExploringLearner(Learner):
             # print "learner.py: base action", action
             return self.explorer.activate(state, action)
         else:
-            # logging.warning("No explorer found: no exploration could be done.")
+            logging.warning("No explorer found: no exploration could be done.")
             return action
 
 

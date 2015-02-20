@@ -26,5 +26,6 @@ class Experiment(object):
         self.agent.integrateObservation(self.task.getObservation())
         self.task.performAction(self.agent.getAction())
         reward = self.task.getReward()
+        # print "experiment.py:oneInteraction:reward", reward
         self.agent.giveReward(reward)
         return reward

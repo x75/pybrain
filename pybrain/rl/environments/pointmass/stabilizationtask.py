@@ -51,9 +51,14 @@ class StabilizationTask(EpisodicTask):
         target = self.env.target # -0.4
         pos = self.env.getPosition()
         # print "(pos, target) =", pos, target
-        reward = -np.sum(np.abs(target - pos))
-        # print "reward", reward
-        return reward
+        # reward = -np.sum(np.abs(target - pos))
+        reward = -np.sum(np.square(target - pos))
+        # if np.abs(err) <= 0.1:
+        #     reward = 1
+        # else:
+        #     reward = -1
+        # print "stabilizationtask.py:getReward:reward", reward
+        return np.clip(reward, -10, 10)
 
 class DiscreteStabilizationTask(StabilizationTask):
     numActions = 3
@@ -92,8 +97,14 @@ class DiscreteStabilizationTask(StabilizationTask):
         target = self.env.target # -0.4
         pos = self.env.getPosition()
         # print "(pos, target) =", pos, target
-        reward = -np.sum(np.abs(target - pos))
-        # print "reward", reward
+        err = target - pos
+        # reward = -np.sum(np.abs(target - pos))
+        reward = -np.sum(np.square(target - pos))
+        # if np.abs(err) <= 0.1:
+        #     reward = 1
+        # else:
+        #     reward = -1
+        print "stabilizationtask.py:getReward:reward", reward
         return reward
 
     def isFinished(self):

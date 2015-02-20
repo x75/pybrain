@@ -38,7 +38,11 @@ class NormalExplorer(Explorer, ParameterContainer):
     sigma = property(_getSigma, _setSigma)
 
     def _forwardImplementation(self, inbuf, outbuf):
-        outbuf[:] = random.normal(inbuf, expln(self.sigma))
+        # print "normal.py: inbuf", inbuf, "sigma", self.sigma
+        # FIXME: don't understand that
+        # outbuf[:] = random.normal(inbuf, expln(self.sigma))
+        outbuf[:] = random.normal(inbuf, self.sigma)
+        # print "normal.py: outbuf", outbuf
 
     def _backwardImplementation(self, outerr, inerr, outbuf, inbuf):
         expln_sigma = expln(self.sigma)

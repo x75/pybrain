@@ -48,9 +48,11 @@ class LearningAgent(LoggingAgent):
         LoggingAgent.getAction(self)
 
         self.lastaction = self.module.activate(self.lastobs)
-
+        # print "learning.py: base action", self.lastaction
+        
         if self.learning:
             self.lastaction = self.learner.explore(self.lastobs, self.lastaction)
+            # print "learning.py: exploratory action", self.lastaction
 
         return self.lastaction
 

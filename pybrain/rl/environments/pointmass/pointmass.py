@@ -13,7 +13,7 @@ class PointMassEnvironment(Environment):
     # continuous domain
 
     # some parameters
-    dt = 1e-2
+    dt = 1e-1
     alag = 1
     pm_mass = 1.
     forcefield = False
@@ -30,7 +30,7 @@ class PointMassEnvironment(Environment):
                                     mass = self.pm_mass,
                                     forcefield = self.forcefield)
         self.ip2d.anoise_mean = -0.05
-        self.target = 0.77
+        self.target = np.random.uniform(-1, 1)
         # ros pub/sub
         self.pub_pos    = rospy.Publisher("/robot/0/pos", Float32MultiArray)
         self.pub_tgt    = rospy.Publisher("/robot/0/target", Float32MultiArray)
