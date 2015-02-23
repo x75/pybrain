@@ -4,6 +4,8 @@ from pybrain.rl.environments import EpisodicTask
 from .pointmass import PointMassEnvironment
 
 import numpy as np
+import rospy
+from std_msgs.msg import Float32MultiArray
 
 class StabilizationTask(EpisodicTask):
     """Stabilize a 2nd order system under biased noise"""
@@ -13,13 +15,24 @@ class StabilizationTask(EpisodicTask):
         EpisodicTask.__init__(self, env)
         self.N = maxsteps
         self.t = 0
+        self.err = 0.
 
         # self.sensor_limits = [(-10, 10), (-100, 100), (-100, 100)]
         self.sensor_limits = [None] * self.env.outdim
         # loop over more motor channels
 
         # self.actor_limits = [(-1., 1.8)]
+        self.action = [0. for i in range(self.env.outdim)]
         self.actor_limits = None
+        
+        # ROS init
+        rospy.init_node("pm")
+        # ROS pub/sub
+        self.pub_pos    = rospy.Publisher("/robot/0/pos", Float32MultiArray)
+        self.pub_tgt    = rospy.Publisher("/robot/0/target", Float32MultiArray)
+        self.pub_motor  = rospy.Publisher("/robot/0/motor", Float32MultiArray)
+        self.pub_reward = rospy.Publisher("/robot/0/reward", Float32MultiArray)
+        self.msg_pos  = Float32MultiArray()
 
     def reset(self):
         """Reset task"""
@@ -28,9 +41,8 @@ class StabilizationTask(EpisodicTask):
 
     def performAction(self, action):
         self.t += 1
-        # action = action - (self.numActions-1)//2.
-        # action = action - (self.numActions-1)//2.
         # print "stab action", action
+        self.action = action
         EpisodicTask.performAction(self, action)
 
     def isFinished(self):
@@ -42,6 +54,9 @@ class StabilizationTask(EpisodicTask):
             if accerr < 1.:
                 return True
         # point mass is too far away
+        # if self.err > 100.:
+        #     print "stabilizationtask.py:isFinished, err too large", self.err
+        #     return True
         if self.t >= self.N: # maximum number of steps reached
             return True
         return False
@@ -49,19 +64,22 @@ class StabilizationTask(EpisodicTask):
 
     def getReward(self):
         target = self.env.target # -0.4
+        sensors = self.env.getSensors()
         pos = self.env.getPosition()
         vel = self.env.getVelocity()
         err = target - pos
-        
+
+        self.err = np.abs(err)
+            
         # direct continuous reward
         if err > 0:
-            reward = -vel
-        else:
             reward = vel
+        else:
+            reward = -vel
 
-        # reward = np.abs(err)
+        # reward = -np.abs(err)
         # print "(pos, target) =", pos, target
-        print "stabilizationtask.py:getReward:err", err
+        # print "stabilizationtask.py:getReward:err", err
         # reward = -np.sum(np.abs(target - pos))
         # reward = -np.sum(np.square(target - pos))
         # if np.abs(err) <= 0.1:
@@ -69,7 +87,25 @@ class StabilizationTask(EpisodicTask):
         # else:
         #     reward = -1
         # print "stabilizationtask.py:getReward:reward", reward
-        return np.clip(reward, -10, 10)
+
+        # publish state
+        # self.msg_pos.data = [0 for i in range(6)]
+        # self.msg_pos.data[0] = self.sensors[0]
+        # self.msg_pos.data[3] = self.sensors[1]
+        self.msg_pos.data = sensors
+        self.pub_pos.publish(self.msg_pos)
+        # publish action
+        self.msg_pos.data = []
+        self.msg_pos.data = [self.action]
+        self.pub_motor.publish(self.msg_pos)
+        # publish target
+        self.msg_pos.data = [target]
+        self.pub_tgt.publish(self.msg_pos)
+        # publish reward
+        self.msg_pos.data = [reward]
+        self.pub_reward.publish(self.msg_pos)
+        
+        return np.clip(reward, -100, 100)
 
 class DiscreteStabilizationTask(StabilizationTask):
     numActions = 3

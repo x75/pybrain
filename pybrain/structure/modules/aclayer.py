@@ -21,6 +21,7 @@ class ACLayer(Module):
         self.Vw   = np.zeros(self.V.T.shape)
         self.Vcurr = 0.
         self.Vlast = 0.
+        self.Vstate = np.zeros((self.hdim, 1))
         # A approximation
         self.A = np.zeros((hdim, 1))
         self.Aactf = lambda x: x
@@ -29,27 +30,28 @@ class ACLayer(Module):
         self.Aw   = np.zeros(self.A.T.shape)
         self.Acurr = 0.
         self.Alast = 0.
+        self.Astate = np.zeros((self.hdim, 1))
 
     def getValue(self, state):
-        y = np.tanh(np.dot(self.Vwin, state))
+        self.Vstate = np.tanh(np.dot(self.Vwin, state))
         # print "y.shape", y.shape
-        return np.dot(self.Vw, y)
+        return np.dot(self.Vw, self.Vstate)
         # return np.dot(self.Vw, state)
         
     def getAction(self, state):
-        y = np.tanh(np.dot(self.Awin, state))
+        self.Astate = np.tanh(np.dot(self.Awin, state))
         # print "y.shape", y.shape
-        return np.dot(self.Aw, y)
+        return np.dot(self.Aw, self.Astate)
         # return np.dot(self.Vw, state)
 
     def _forwardImplementation(self, inbuf, outbuf):
         # print "aclayer.py:inbuf", inbuf
         # outbuf[:] = np.tanh(np.dot(self.Aw, np.asarray(inbuf)))
-        y = np.tanh(np.dot(self.Awin, np.asarray(inbuf))).reshape((self.hdim, 1))
+        self.Astate = np.tanh(np.dot(self.Awin, np.asarray(inbuf))).reshape((self.hdim, 1))
         # print "y.shape", y.shape
-        outbuf[:] = np.dot(self.Aw, y)
+        outbuf[:] = np.dot(self.Aw, self.Astate)
         # outbuf[:] = np.dot(self.Aw, np.asarray(inbuf))
-        # print "aclayer.py:outbuf", outbuf
+        print "aclayer.py:outbuf", outbuf
         # outbuf[:] = inbuf
 
     def _backwardImplementation(self, outerr, inerr, outbuf, inbuf):

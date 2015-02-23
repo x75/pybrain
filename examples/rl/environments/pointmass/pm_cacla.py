@@ -26,6 +26,11 @@ from pybrain.structure.modules.aclayer import ACLayer
 
 import signal, rospy, sys
 
+import numpy as np
+# np.random.seed(1244)
+# np.random.seed(1247)
+# np.random.seed(1256)
+
 # et = ExTools(batch, prnts, kind = kind) # tool for printing and plotting
 
 def handler(signum, frame):
@@ -47,26 +52,26 @@ def main(args):
     # environment
     env = PointMassEnvironment(len_episode=len_episode+1)
     # controllerA
-    action = buildNetwork(3, 1, bias=True)
+    # action = buildNetwork(3, 1, bias=True)
     # print "action", action
-    print "dir(action)", dir(action)
+    # print "dir(action)", dir(action)
     # controllerV
     # value = buildNetwork(3, 1, bias=True)
-    value = ActionValueNetwork(3, 1)
-    print "dir(value)", dir(value)
+    # value = ActionValueNetwork(3, 1)
+    # print "dir(value)", dir(value)
     # sys.exit()
     # combined learning module
-    module = ACLayer(indim = 3, outdim = 1, hdim = 100)
+    module = ACLayer(indim = 3, outdim = 1, hdim = 1000)
     # task
     task = StabilizationTask(env, maxsteps=len_episode)
     # explorer
-    explorer = NormalExplorer(dim = 1, sigma = 1e-2)
+    explorer = NormalExplorer(dim = 1, sigma = 1e-1)
     # learner
     alpha = 1e-3
-    beta  = 1e-3
+    beta  = 1e-2
     # beta  = 1e-1
     gamma = 9.9e-1
-    learner = CACLA(module, alpha=alpha, beta=beta, gamma=gamma)
+    learner = CACLA(module, task, alpha=alpha, beta=beta, gamma=gamma)
     learner.explorer = explorer
     # agent
     agent = LearningAgent(module, learner)
@@ -74,10 +79,12 @@ def main(args):
     experiment = ContinuousExperiment(task, agent)
 
     print "Cacla learning"
+    # experiment.doEpisodes(num_episodes)
     for episode in range(num_episodes):
+        print "pm_cacla: episode", episode
         # for i in range(len_episode):
         r = experiment.doInteractionsAndLearn(len_episode)
-        # print r
+        # print "pm_cacla: r", r
         # print i
 
 if __name__ == "__main__":
