@@ -39,7 +39,7 @@ class StabilizationTask(EpisodicTask):
         if self.t >= 100:
             accerr = np.sum(np.abs(self.env.ip2d.x[self.t-100:self.t]))
             # print "accerr", accerr
-            if accerr < 0.1:
+            if accerr < 1.:
                 return True
         # point mass is too far away
         if self.t >= self.N: # maximum number of steps reached
@@ -52,10 +52,14 @@ class StabilizationTask(EpisodicTask):
         pos = self.env.getPosition()
         vel = self.env.getVelocity()
         err = target - pos
+        
+        # direct continuous reward
         if err > 0:
             reward = -vel
         else:
             reward = vel
+
+        # reward = np.abs(err)
         # print "(pos, target) =", pos, target
         print "stabilizationtask.py:getReward:err", err
         # reward = -np.sum(np.abs(target - pos))

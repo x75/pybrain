@@ -52,20 +52,29 @@ class CACLA(ValueBasedLearner):
                     print "NAN"
                     sys.exit()
                 # print "Vtst, Vtstp1", Vtst, Vtstp1
-                target = self.lastreward + self.gamma * Vtstp1
+                # target = self.lastreward + self.gamma * Vtstp1
+                target = reward + self.gamma * Vtstp1
                 # print "self.lastreward", self.lastreward
                 # print "gamma * V_t(s_t+1)", self.gamma * Vtstp1
                 # print "target V", target
+                # delta = target - Vtst
                 delta = target - Vtst
                 # print "|delta|", np.linalg.norm(delta)
                 # print "delta Vw", delta * self.laststate
-                self.module.Vw += self.beta * delta # * self.laststate
-                self.module.Vw = np.clip(self.module.Vw, -100., 100.)
                 # print "self.module.Vw", self.module.Vw
                 # # if v_t+1(s_t) > V_t(s_t) then
-                Vtp1st = np.dot(self.module.Vw, self.laststate)
+                
+                # y = np.tanh(np.dot(self.module.Vwin, self.laststate))
+                # print "y.shape", y.shape
+                # Vtp1st = np.dot(self.module.Vw, y)
+                
+                # Vtp1st = np.dot(self.module.Vw, self.laststate)
+                # value learn
+                self.module.Vw += self.beta * delta # * self.laststate
+                self.module.Vw = np.clip(self.module.Vw, -100., 100.)
                 # if Vtp1st > Vtst:
-                if reward > self.lastreward:
+                # if reward > self.lastreward:
+                if target > Vtst:
                     # if Vtstp1 > Vtst:
                     # print "learning" * 10
                     # action module learning
@@ -73,7 +82,7 @@ class CACLA(ValueBasedLearner):
                     # Atst = np.dot(self.module.Aw, self.laststate)
                     # delta = target - Atst
                     # print "target", target
-                    self.module.Aw += self.alpha * target
+                    self.module.Aw += self.alpha * target #- self.module.Aw
                     self.module.Aw = np.clip(self.module.Aw, -100., 100.)
 
                 # print "norms", np.linalg.norm(self.module.Aw), np.linalg.norm(self.module.Vw)

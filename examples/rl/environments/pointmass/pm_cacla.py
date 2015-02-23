@@ -56,15 +56,16 @@ def main(args):
     print "dir(value)", dir(value)
     # sys.exit()
     # combined learning module
-    module = ACLayer(3, 1)
+    module = ACLayer(indim = 3, outdim = 1, hdim = 100)
     # task
     task = StabilizationTask(env, maxsteps=len_episode)
     # explorer
-    explorer = NormalExplorer(dim = 1, sigma = 1e-1)
+    explorer = NormalExplorer(dim = 1, sigma = 1e-2)
     # learner
-    alpha = 1e-1
-    beta  = 1e-5
-    gamma = 9e-1
+    alpha = 1e-3
+    beta  = 1e-3
+    # beta  = 1e-1
+    gamma = 9.9e-1
     learner = CACLA(module, alpha=alpha, beta=beta, gamma=gamma)
     learner.explorer = explorer
     # agent
