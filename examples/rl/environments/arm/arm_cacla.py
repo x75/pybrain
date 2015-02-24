@@ -28,7 +28,7 @@ def main(args):
     # task
     task = CartesianTask(env, maxsteps=len_episode)
     # explorer
-    explorer = NormalExplorer2(dim = 3, sigma = 5e-2) # 1e-1
+    explorer = NormalExplorer2(dim = 3, sigma = 5e-1) # 1e-1
     # learner
     # alpha = 1e-2
     # beta  = 1e-1

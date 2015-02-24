@@ -6,6 +6,7 @@ from .arm import ArmEnvironment
 import numpy as np
 import rospy
 from std_msgs.msg import Float32, Float32MultiArray
+from smp_msgs.srv import SingleValFloat
 
 class CartesianTask(EpisodicTask):
     """Drive n-joint arm to cartesian end-effector position"""
@@ -34,7 +35,11 @@ class CartesianTask(EpisodicTask):
         self.pub_reward = rospy.Publisher("/robot/0/reward", Float32MultiArray)
         self.msg_pos  = Float32MultiArray()
         self.sub_ctrl_target = rospy.Subscriber("/robot/0/ctrl/target", Float32, self.sub_cb_ctrl)
+        self.srv_numbodies = rospy.Service("%s/numbodies" % ("Experiment"), SingleValFloat, self.srv_cb_numbodies)
 
+    def srv_cb_numbodies(self, req):
+        return 2
+    
     def sub_cb_ctrl(self, msg):
         """Set learning parameters"""
         topic = msg._connection_header["topic"].split("/")[-1]
@@ -52,13 +57,15 @@ class CartesianTask(EpisodicTask):
         self.msg_pos.data = sensors
         self.pub_pos.publish(self.msg_pos)
         # publish action
-        self.msg_pos.data = []
-        self.msg_pos.data = [self.action]
+        # self.msg_pos.data = []
+        self.msg_pos.data = self.action.tolist()
         self.pub_motor.publish(self.msg_pos)
         # publish target
-        self.msg_pos.data = [target]
+        print type(target), target.shape
+        self.msg_pos.data = target.flatten().tolist()
         self.pub_tgt.publish(self.msg_pos)
         # publish reward
+        print type(reward)
         self.msg_pos.data = [reward]
         self.pub_reward.publish(self.msg_pos)
         

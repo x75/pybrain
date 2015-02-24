@@ -5,12 +5,15 @@ from pybrain.structure.modules.module import Module
 
 import numpy as np
 
+# FIXME: make V and A use the same expanded state (Astate = Vstate)
 
 class ACLayer(Module):
     """Module combining value (critic) and action (actor) approximation for CACLA learner"""
     def __init__(self, indim=1,  outdim=1, hdim=1):
         Module.__init__(self, indim, outdim)
         self.hdim = hdim
+        self.indim = indim
+        self.outdim = outdim
         self.winamp = 0.05
         self.wactamp = 0.05
         # V approximation
@@ -27,7 +30,8 @@ class ACLayer(Module):
         self.Aactf = lambda x: x
         self.Awin = np.random.uniform(-1, 1, (self.hdim, indim)) * self.wactamp
         # self.Aw   = np.random.uniform(-1e-5, 1e-5, self.A.T.shape)
-        self.Aw   = np.zeros(self.A.T.shape)
+        print "outdim", outdim
+        self.Aw   = np.zeros((outdim, hdim)) # rows = number of output units
         self.Acurr = 0.
         self.Alast = 0.
         self.Astate = np.zeros((self.hdim, 1))
@@ -55,7 +59,7 @@ class ACLayer(Module):
         # self.Astate = 0.99 * self.Astate + 0.01 * nstate
         self.Astate[-1] = 1.
         # print "y.shape", y.shape
-        outbuf[:] = np.dot(self.Aw, self.Astate)
+        outbuf[:] = np.dot(self.Aw, self.Astate).reshape((self.outdim))
         # outbuf[:] = np.dot(self.Aw, np.asarray(inbuf))
         # print "aclayer.py:outbuf", outbuf
         # outbuf[:] = inbuf

@@ -102,7 +102,7 @@ class CACLA(ValueBasedLearner):
                     # print "learning " * 10
                     # action module learning
                     # target = self.lastaction
-                    Atarget = (self.module.Astate * (self.lastaction - action)).reshape((self.module.hdim,))
+                    Atarget = (self.module.Astate * (self.lastaction - action)).reshape((self.module.outdim, self.module.hdim))
                     # print "Atarget.shape", Atarget.shape, self.module.Aw.shape
                     # Atst = np.dot(self.module.Aw, self.laststate)
                     # delta = target - Atst
