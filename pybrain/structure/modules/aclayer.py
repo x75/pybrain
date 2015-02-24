@@ -34,12 +34,14 @@ class ACLayer(Module):
 
     def getValue(self, state):
         self.Vstate = np.tanh(np.dot(self.Vwin, state))
+        self.Vstate[-1] = 1.
         # print "y.shape", y.shape
         return np.dot(self.Vw, self.Vstate)
         # return np.dot(self.Vw, state)
         
     def getAction(self, state):
         self.Astate = np.tanh(np.dot(self.Awin, state))
+        self.Astate[-1] = 1.
         # print "y.shape", y.shape
         return np.dot(self.Aw, self.Astate)
         # return np.dot(self.Vw, state)
@@ -48,6 +50,7 @@ class ACLayer(Module):
         # print "aclayer.py:inbuf", inbuf
         # outbuf[:] = np.tanh(np.dot(self.Aw, np.asarray(inbuf)))
         self.Astate = np.tanh(np.dot(self.Awin, np.asarray(inbuf))).reshape((self.hdim, 1))
+        self.Astate[-1] = 1.
         # print "y.shape", y.shape
         outbuf[:] = np.dot(self.Aw, self.Astate)
         # outbuf[:] = np.dot(self.Aw, np.asarray(inbuf))

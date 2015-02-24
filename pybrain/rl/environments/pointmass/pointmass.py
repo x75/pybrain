@@ -26,7 +26,7 @@ class PointMassEnvironment(Environment):
                                     mass = self.pm_mass,
                                     forcefield = self.forcefield)
         self.ip2d.anoise_mean = -0.05
-        self.target = np.random.uniform(-5, 5)
+        self.target = np.random.uniform(-5, 0)
 
         self.reset()
         self.u = np.zeros((self.indim, 1))

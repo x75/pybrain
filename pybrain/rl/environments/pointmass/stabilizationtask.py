@@ -5,7 +5,7 @@ from .pointmass import PointMassEnvironment
 
 import numpy as np
 import rospy
-from std_msgs.msg import Float32MultiArray
+from std_msgs.msg import Float32, Float32MultiArray
 
 class StabilizationTask(EpisodicTask):
     """Stabilize a 2nd order system under biased noise"""
@@ -33,6 +33,17 @@ class StabilizationTask(EpisodicTask):
         self.pub_motor  = rospy.Publisher("/robot/0/motor", Float32MultiArray)
         self.pub_reward = rospy.Publisher("/robot/0/reward", Float32MultiArray)
         self.msg_pos  = Float32MultiArray()
+        self.sub_ctrl_target = rospy.Subscriber("/robot/0/ctrl/target", Float32, self.sub_cb_ctrl)
+        
+    def sub_cb_ctrl(self, msg):
+        """Set learning parameters"""
+        topic = msg._connection_header["topic"].split("/")[-1]
+        # print "topic", topic
+        # print msg
+        if topic == "target":
+            self.target = msg.data
+            print("target", self.target)
+
 
     def reset(self):
         """Reset task"""
@@ -63,7 +74,7 @@ class StabilizationTask(EpisodicTask):
         # pass
 
     def getReward(self):
-        target = self.env.target # -0.4
+        target = 0. # self.env.target # -0.4
         sensors = self.env.getSensors()
         pos = self.env.getPosition()
         vel = self.env.getVelocity()
@@ -77,7 +88,8 @@ class StabilizationTask(EpisodicTask):
         else:
             reward = -vel
 
-        # reward = -np.abs(err)
+        reward = -np.sum(np.square(err))
+        reward = -np.sum(np.square(vel))
         # print "(pos, target) =", pos, target
         # print "stabilizationtask.py:getReward:err", err
         # reward = -np.sum(np.abs(target - pos))
