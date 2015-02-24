@@ -92,13 +92,16 @@ class StabilizationTask(EpisodicTask):
         # pass
 
     def getReward(self):
+        if self.t % 1000 == 0:
+            self.env.settarget()
+            print "stabilizationtask:new target", self.env.target
         # target = 0. # for e.g. velocity control
         target = self.env.target # -0.4
         sensors = self.env.getSensors()
         pos = sensors[0] # self.env.getPosition()
         vel = self.env.getVelocity()
-        # err = target - pos
-        err = pos
+        err = target - pos
+        # err = pos
 
         self.err = np.abs(err)
         

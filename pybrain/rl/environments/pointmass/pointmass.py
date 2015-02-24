@@ -6,12 +6,12 @@ import time
 
 class PointMassEnvironment(Environment):
     indim = 1
-    outdim = 3
+    outdim = 4 #3
 
     # continuous domain
 
     # some parameters
-    dt = 1e-1
+    dt = 5e-2
     alag = 1
     pm_mass = 1.
     forcefield = False
@@ -36,7 +36,7 @@ class PointMassEnvironment(Environment):
 
     def settarget(self):
         # self.target = np.random.uniform(-5, 0)
-        self.target = np.random.uniform(-2, 2)
+        self.target = np.random.uniform(-12, 12)
 
     def reset(self):
         a0 = np.zeros((1, self.indim))
@@ -48,7 +48,8 @@ class PointMassEnvironment(Environment):
 
     def getSensors(self):
         # print "pointmass:getSensors"
-        self.sensors = np.vstack((self.ip2d.x[self.ti,:], self.ip2d.v[self.ti,:], self.ip2d.a[self.ti,:] * 0.))
+        # self.sensors = np.vstack((self.ip2d.x[self.ti,:], self.ip2d.v[self.ti,:], self.ip2d.a[self.ti,:] * 0.))
+        self.sensors = np.vstack((self.ip2d.x[self.ti,:], self.ip2d.v[self.ti,:], self.ip2d.a[self.ti,:] * 0., self.target))
         # self.sensors = np.vstack((self.target - self.ip2d.x[self.ti,:], self.ip2d.v[self.ti,:], self.ip2d.a[self.ti,:] * 0.))
         return self.sensors.reshape((self.outdim))
 

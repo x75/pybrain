@@ -12,6 +12,7 @@ class ContinuousExperiment(Experiment):
             this function can be made.
         """
         for _ in range(number):
+            # print _
             reward = self._oneInteraction()
             # print "reward", reward
             self.agent.learn()

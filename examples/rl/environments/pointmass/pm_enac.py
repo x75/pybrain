@@ -90,12 +90,12 @@ def main(args):
             # discrete stabilization task
             task = DiscreteStabilizationTask(env, 1000, numActions)
             # create actionvalue network
-            anet = ActionValueNetwork(3, numActions)
+            anet = ActionValueNetwork(4, numActions)
         else:
             # standard stabilization task
             task = StabilizationTask(env, 1000)
             # create controller network
-            net = buildNetwork(3, 1, bias=True)
+            net = buildNetwork(4, 1, bias=True)
         # create agent with controller and learner (and its options)
         if mode == "enac":
             agent = LearningAgent(net, ENAC())

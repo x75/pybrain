@@ -93,6 +93,8 @@ class CACLA(ValueBasedLearner):
                 # value learn
                 self.module.Vw += self.beta * delta # * self.laststate
                 # self.module.Vw = np.clip(self.module.Vw, -10., 10.)
+                Vtp1st = self.module.getValue(self.laststate)
+
                 # if Vtp1st > Vtst:
                 # if reward > self.lastreward:
                 if Vtarget > Vtst:

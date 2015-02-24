@@ -46,11 +46,11 @@ def main(args):
     # install stop handler
     signal.signal(signal.SIGINT, handler)
 
-    num_episodes = 10
-    len_episode = 60000
+    num_episodes = 1
+    len_episode = 100000
 
     # environment
-    env = PointMassEnvironment(len_episode=len_episode+1)
+    env = PointMassEnvironment(len_episode=len_episode)
     # controllerA
     # action = buildNetwork(3, 1, bias=True)
     # print "action", action
@@ -61,7 +61,7 @@ def main(args):
     # print "dir(value)", dir(value)
     # sys.exit()
     # combined learning module
-    module = ACLayer(indim = 3, outdim = 1, hdim = 200)
+    module = ACLayer(indim = 4, outdim = 1, hdim = 500)
     # task
     task = StabilizationTaskVel(env, maxsteps=len_episode)
     # explorer
@@ -87,6 +87,7 @@ def main(args):
         r = experiment.doInteractionsAndLearn(len_episode)
         # print "pm_cacla: r", r
         # print i
+        env.reset()
 
 if __name__ == "__main__":
     main(None)
