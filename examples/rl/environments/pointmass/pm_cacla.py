@@ -9,11 +9,11 @@ __author__ = "Oswald Berthold"
 from pybrain.tools.example_tools import ExTools
 from pybrain.tools.shortcuts import buildNetwork
 # from pybrain.rl.environments.cartpole import CartPoleEnvironment, BalanceTask
-from pybrain.rl.environments.pointmass import PointMassEnvironment, StabilizationTask
+from pybrain.rl.environments.pointmass import PointMassEnvironment, StabilizationTask, StabilizationTaskVel
 from pybrain.rl.agents import LearningAgent
 # from pybrain.rl.learners import ENAC
 # from pybrain.rl.learners import Reinforce
-from pybrain.rl.explorers import NormalExplorer
+from pybrain.rl.explorers import NormalExplorer, NormalExplorer2
 from pybrain.rl.learners import CACLA
 from pybrain.rl.learners.valuebased import ActionValueNetwork
 from pybrain.rl.experiments import ContinuousExperiment
@@ -63,12 +63,12 @@ def main(args):
     # combined learning module
     module = ACLayer(indim = 3, outdim = 1, hdim = 200)
     # task
-    task = StabilizationTask(env, maxsteps=len_episode)
+    task = StabilizationTaskVel(env, maxsteps=len_episode)
     # explorer
-    explorer = NormalExplorer(dim = 1, sigma = 1e-1) # 1e-1
+    explorer = NormalExplorer2(dim = 1, sigma = 5e-2) # 1e-1
     # learner
-    alpha = 1e-2
-    beta  = 1e-1
+    # alpha = 1e-2
+    # beta  = 1e-1
     alpha = 1e-3
     beta  = 1e-2
     gamma = 9.9e-1

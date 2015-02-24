@@ -25,13 +25,18 @@ class PointMassEnvironment(Environment):
                                     alag = self.alag-1,
                                     mass = self.pm_mass,
                                     forcefield = self.forcefield)
-        self.ip2d.anoise_mean = -0.05
-        self.target = np.random.uniform(-5, 0)
+        # self.ip2d.anoise_mean = -0.05
+        self.ip2d.anoise_mean = -0.5
+        self.settarget()
 
         self.reset()
         self.u = np.zeros((self.indim, 1))
         self.sensors = np.zeros((self.outdim, 1))
         self.ti = 0
+
+    def settarget(self):
+        # self.target = np.random.uniform(-5, 0)
+        self.target = np.random.uniform(-2, 2)
 
     def reset(self):
         a0 = np.zeros((1, self.indim))
@@ -44,6 +49,7 @@ class PointMassEnvironment(Environment):
     def getSensors(self):
         # print "pointmass:getSensors"
         self.sensors = np.vstack((self.ip2d.x[self.ti,:], self.ip2d.v[self.ti,:], self.ip2d.a[self.ti,:] * 0.))
+        # self.sensors = np.vstack((self.target - self.ip2d.x[self.ti,:], self.ip2d.v[self.ti,:], self.ip2d.a[self.ti,:] * 0.))
         return self.sensors.reshape((self.outdim))
 
     def performAction(self, action):
@@ -57,8 +63,11 @@ class PointMassEnvironment(Environment):
         self.step()
 
     def step(self):
+        if self.ti == 0:
+            # print "ti", self.ti
+            self.settarget()
         self.ip2d.step(self.ti, self.dt)
-        time.sleep(0.01)
+        # time.sleep(0.01)
         self.ti += 1
 
     def getPosition(self):

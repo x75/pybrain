@@ -11,8 +11,8 @@ class ACLayer(Module):
     def __init__(self, indim=1,  outdim=1, hdim=1):
         Module.__init__(self, indim, outdim)
         self.hdim = hdim
-        self.winamp = 0.1
-        self.wactamp = 0.1
+        self.winamp = 0.05
+        self.wactamp = 0.05
         # V approximation
         self.V = np.zeros((hdim, 1))
         self.Vactf = lambda x: x
@@ -47,14 +47,17 @@ class ACLayer(Module):
         # return np.dot(self.Vw, state)
 
     def _forwardImplementation(self, inbuf, outbuf):
+        print "aclayer:forwardimpl", inbuf
         # print "aclayer.py:inbuf", inbuf
         # outbuf[:] = np.tanh(np.dot(self.Aw, np.asarray(inbuf)))
+        
         self.Astate = np.tanh(np.dot(self.Awin, np.asarray(inbuf))).reshape((self.hdim, 1))
+        # self.Astate = 0.99 * self.Astate + 0.01 * nstate
         self.Astate[-1] = 1.
         # print "y.shape", y.shape
         outbuf[:] = np.dot(self.Aw, self.Astate)
         # outbuf[:] = np.dot(self.Aw, np.asarray(inbuf))
-        print "aclayer.py:outbuf", outbuf
+        # print "aclayer.py:outbuf", outbuf
         # outbuf[:] = inbuf
 
     def _backwardImplementation(self, outerr, inerr, outbuf, inbuf):

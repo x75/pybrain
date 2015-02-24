@@ -1,4 +1,4 @@
-__author__ = "Thomas Rueckstiess, ruecksti@in.tum.de"
+__author__ = "Thomas Rueckstiess, ruecksti@in.tum.de, Oswald Berthold"
 
 from scipy import random
 
@@ -40,8 +40,8 @@ class NormalExplorer(Explorer, ParameterContainer):
     def _forwardImplementation(self, inbuf, outbuf):
         # print "normal.py: inbuf", inbuf, "sigma", self.sigma
         # FIXME: don't understand that
-        # outbuf[:] = random.normal(inbuf, expln(self.sigma))
-        outbuf[:] = random.normal(inbuf, self.sigma)
+        outbuf[:] = random.normal(inbuf, expln(self.sigma))
+        # outbuf[:] = random.normal(inbuf, self.sigma)
         # print "normal.py: outbuf", outbuf
 
     def _backwardImplementation(self, outerr, inerr, outbuf, inbuf):
@@ -53,4 +53,15 @@ class NormalExplorer(Explorer, ParameterContainer):
         # inerr /= expln_sigma**2
         # self._derivs /= expln_sigma**2
 
+class NormalExplorer2(NormalExplorer):
+    """ A continuous explorer, that perturbs the resulting action with
+        additive, normally distributed random noise. The exploration
+        has parameter(s) sigma, which is the distribution's
+        standard deviation. Compare NormalExplorer using expln transform.
+    """
 
+    def __init__(self, dim, sigma=0.):
+        NormalExplorer.__init__(self, dim, sigma)
+
+    def _forwardImplementation(self, inbuf, outbuf):
+        outbuf[:] = random.normal(inbuf, self.sigma)

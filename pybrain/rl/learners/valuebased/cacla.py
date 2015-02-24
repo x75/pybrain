@@ -17,6 +17,8 @@ class CACLA(ValueBasedLearner):
         self.module = module
         self.task   = task
 
+        self.annealT = 10000
+
         # learning rates for V and A
         self.alpha = alpha # action lr
         self.beta = beta  # value lr
@@ -31,10 +33,17 @@ class CACLA(ValueBasedLearner):
         self.pub_V = rospy.Publisher("/robot/0/V", Float32MultiArray)
         self.msg_V = Float32MultiArray()
         self.msg_V.data = [0 for i in range(3)]
-        
+
+    def anneal(self):
+        # self.explorer._setSigma(self.explorer.sigma * 0.99999)
+        self.explorer._setSigma(self.explorer.sigma * 0.9999)
+        print self.explorer.sigma
+        # pass
+    
     def learn(self):
         samples = [[self.dataset.getSample()]]
-
+        # print "calca.py:learn:t", self.task.t
+        # print dir(self.explorer)
         for seq in samples:
             # print "seq", seq
             # get state, performed action, got reward
@@ -111,3 +120,4 @@ class CACLA(ValueBasedLearner):
                 self.lastreward = reward
                 # self.Vlast = self.Vcurr
                 # self.Alast = self.Acurr
+            # self.anneal()
