@@ -33,17 +33,17 @@ def main(args):
     # task
     task = CartesianTask(env, maxsteps=len_episode)
     # explorer
-    explorer = NormalExplorer2(dim = outdim, sigma = 5e-3) # 1e-1
+    explorer = NormalExplorer2(dim = outdim, sigma = 1e-3) # 1e-1
     # learner
-    alpha = 2e-4
+    alpha = 2e-3
     beta  = 7e-1
     # alpha = 1e-3
     # beta  = 1e-2
     gamma = 9.99e-1
     # gamma = 5e-2
     # gamma = 1e-1
-    learner = CACLA(module, task, alpha=alpha, beta=beta, gamma=gamma)
-    learner.explorer = explorer
+    learner = CACLA(module, task, alpha=alpha, beta=beta, gamma=gamma, explorer=explorer)
+    # learner.explorer = explorer
     # agent
     agent = LearningAgent(module, learner)
     # experiment

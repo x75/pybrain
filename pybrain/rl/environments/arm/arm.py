@@ -61,9 +61,12 @@ class ArmEnvironment(Environment):
     
     def step(self):
         self.pos = self.arm.compute_sensori_effect(self.action.flatten())
-        self.sensors[0,0] = 0. # self.pos[0]
-        self.sensors[1,0] = 0. # self.pos[1]
-        self.sensors[self.outdim/2:] = (self.target.T - self.pos).T
+        # self.sensors[0,0] = self.pos[0]
+        # self.sensors[1,0] = self.pos[1]
+        self.sensors[0,0] = self.action[0]
+        self.sensors[1,0] = self.action[1]
+        # self.sensors[self.outdim/2:] = (self.target.T - self.pos).T
+        self.sensors[self.outdim/2:] = self.target
         time.sleep(0.001)
         
     def getPosition(self):

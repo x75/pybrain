@@ -11,13 +11,14 @@ class CACLA(ValueBasedLearner):
 
     From Hasselt09"""
 
-    def __init__(self, module, task, alpha=1e-2, beta=1e-2, gamma=1e-1):
+    def __init__(self, module, task, alpha=1e-2, beta=1e-2, gamma=1e-1, explorer=None):
         ValueBasedLearner.__init__(self)
 
         self.module = module
         self.task   = task
+        self.explorer = explorer
 
-        self.annealT = 10000
+        self.annealT = 20000.
 
         # learning rates for V and A
         self.alpha = alpha # action lr
@@ -33,11 +34,20 @@ class CACLA(ValueBasedLearner):
         self.pub_V = rospy.Publisher("/robot/0/V", Float32MultiArray)
         self.msg_V = Float32MultiArray()
         self.msg_V.data = [0 for i in range(3)]
+        self.cnt = 0
+        # print dir(self.explorer)
+        self.sigma_ = self.explorer.sigma
+        print "cacla:sigma", self.explorer.sigma
+        self.alpha_ = alpha
+        self.beta_  = beta
 
     def anneal(self):
         # self.explorer._setSigma(self.explorer.sigma * 0.99999)
-        self.explorer._setSigma(self.explorer.sigma * 0.9999)
-        print self.explorer.sigma
+        # print self.cnt
+        self.alpha = self.alpha_ / (1 + (self.cnt / self.annealT))
+        self.beta = self.beta_ / (1 + (self.cnt / self.annealT))
+        self.explorer._setSigma(self.explorer.sigma * 0.99999) # _ / (1 + (self.cnt / self.annealT)))
+        print self.explorer.sigma, self.alpha, self.beta
         # pass
     
     def learn(self):
@@ -70,8 +80,8 @@ class CACLA(ValueBasedLearner):
                     print "NAN"
                     sys.exit()
                 
-                # Vtarget = reward + self.gamma * Vtstp1
-                Vtarget = self.lastreward + self.gamma * Vtstp1
+                Vtarget = reward + self.gamma * Vtstp1
+                # Vtarget = self.lastreward + self.gamma * Vtstp1
                 # Vtarget = (1-self.gamma) * reward + self.gamma * Vtstp1
                 
                 self.module.trainV(self.beta, Vtarget, Vtstp1, self.laststate)
@@ -80,8 +90,8 @@ class CACLA(ValueBasedLearner):
                 Vtp1st = self.module.getValue(self.laststate)
 
                 # if Vtp1st > Vtst:
-                # if reward > self.lastreward:
-                if Vtarget > Vtst:
+                if reward > self.lastreward:
+                # if Vtarget > Vtst:
                 # if Vtstp1 > Vtst:
                     # print "learning " * 10
                     # action module learning
@@ -120,4 +130,5 @@ class CACLA(ValueBasedLearner):
                 self.lastreward = reward
                 # self.Vlast = self.Vcurr
                 # self.Alast = self.Acurr
-            # self.anneal()
+            self.cnt += 1
+            self.anneal()
