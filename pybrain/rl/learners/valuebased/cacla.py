@@ -41,6 +41,7 @@ class CACLA(ValueBasedLearner):
         # pass
     
     def learn(self):
+        # print self.dataset
         samples = [[self.dataset.getSample()]]
         # print "calca.py:learn:t", self.task.t
         # print dir(self.explorer)
@@ -63,56 +64,53 @@ class CACLA(ValueBasedLearner):
                 # # value module learning
                 # # print "cacla.py:learn:reward", reward
                 # print "self.module", self.module
-                Vtst   = self.module.getValue(self.laststate)
                 Vtstp1 = self.module.getValue(state)
+                Vtst   = self.module.getValue(self.laststate)
                 if np.isnan(Vtst) or np.isnan(Vtstp1):
                     print "NAN"
                     sys.exit()
-                # print "Vtst, Vtstp1", Vtst, Vtstp1
-                # target = self.lastreward + self.gamma * Vtstp1
-                # if self.task.isFinished():
-                #     target = reward
-                # else:
-                Vtarget = reward + self.gamma * Vtstp1
-                # print "self.lastreward", self.lastreward
-                # print "gamma * V_t(s_t+1)", self.gamma * Vtstp1
-                # print "target V", target
-                # delta = target - Vtst
-                # print "self.module.Vstate.shape", self.module.Vstate.shape
-                delta = (Vtarget  - Vtstp1) * self.module.Vstate
-                # print "|delta|", np.linalg.norm(delta)
-                # print "delta Vw", delta * self.laststate
-                # print "self.module.Vw", self.module.Vw
-                # # if v_t+1(s_t) > V_t(s_t) then
                 
-                # y = np.tanh(np.dot(self.module.Vwin, self.laststate))
-                # print "y.shape", y.shape
-                # Vtp1st = np.dot(self.module.Vw, y)
+                # Vtarget = reward + self.gamma * Vtstp1
+                Vtarget = self.lastreward + self.gamma * Vtstp1
+                # Vtarget = (1-self.gamma) * reward + self.gamma * Vtstp1
                 
-                # Vtp1st = np.dot(self.module.Vw, self.laststate)
-                # value learn
-                self.module.Vw += self.beta * delta # * self.laststate
+                self.module.trainV(self.beta, Vtarget, Vtstp1, self.laststate)
+                
                 # self.module.Vw = np.clip(self.module.Vw, -10., 10.)
                 Vtp1st = self.module.getValue(self.laststate)
 
                 # if Vtp1st > Vtst:
                 # if reward > self.lastreward:
                 if Vtarget > Vtst:
-                    # if Vtstp1 > Vtst:
+                # if Vtstp1 > Vtst:
                     # print "learning " * 10
                     # action module learning
                     # target = self.lastaction
-                    Atarget = (self.module.Astate * (self.lastaction - action)).reshape((self.module.outdim, self.module.hdim))
-                    # print "Atarget.shape", Atarget.shape, self.module.Aw.shape
-                    # Atst = np.dot(self.module.Aw, self.laststate)
-                    # delta = target - Atst
-                    # print "target", target
-                    self.module.Aw += self.alpha * Atarget # - action)
-                    # self.module.Aw = np.clip(self.module.Aw, -10., 10.)
+                    
+                    # Atarget = (self.module.Astate * (self.lastaction - action)).reshape((self.module.outdim, self.module.hdim))
+                    # # print "Atarget.shape", Atarget.shape, self.module.Aw.shape
+                    # # Atst = np.dot(self.module.Aw, self.laststate)
+                    # # delta = target - Atst
+                    # # print "target", target
+                    # self.module.Aw += self.alpha * Atarget # - action)
+
+                    # lastaction = self.module.getAction(self.laststate)
+                    # print action, lastaction
+                    Atst   = self.module.getAction(self.laststate)
+                    # print "atst", Atst, action, self.module.Astate
+                    d1 = (action - Atst)
+                    # print "d1", d1.shape, (d1 * self.module.Astate).shape
+                    # self.module.trainA(self.alpha, action, self.lastaction, state)
+                    self.module.trainA(self.alpha, action, Atst, state)
+                    
+                    print "cacla |Aw|", np.linalg.norm(self.module.Aw)
+                # else:
+                #     self.module.Aw -= self.alpha * Atarget # - action)
+                # self.module.Aw = np.clip(self.module.Aw, -10., 10.)
 
                 # print "norms", np.linalg.norm(self.module.Aw), np.linalg.norm(self.module.Vw)
                 self.msg_V.data[0] = Vtst
-                self.msg_V.data[1] = Vtstp1
+                self.msg_V.data[1] = Vtp1st # Vtstp1
                 self.msg_V.data[2] = Vtarget
                 self.pub_V.publish(self.msg_V)
                     

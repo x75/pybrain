@@ -14,3 +14,4 @@ from pybrain.structure.modules.table import Table
 from pybrain.structure.modules.module import Module
 from pybrain.structure.modules.relulayer import ReluLayer
 from pybrain.structure.modules.aclayer import ACLayer
+from pybrain.structure.modules.aclayer import ACLayerMLP

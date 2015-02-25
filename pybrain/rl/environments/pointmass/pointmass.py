@@ -68,7 +68,7 @@ class PointMassEnvironment(Environment):
             # print "ti", self.ti
             self.settarget()
         self.ip2d.step(self.ti, self.dt)
-        # time.sleep(0.01)
+        time.sleep(0.01)
         self.ti += 1
 
     def getPosition(self):

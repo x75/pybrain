@@ -7,7 +7,7 @@ from pybrain.rl.explorers import NormalExplorer2
 from pybrain.rl.learners import CACLA
 from pybrain.rl.learners.valuebased import ActionValueNetwork
 from pybrain.rl.experiments import ContinuousExperiment
-from pybrain.structure.modules.aclayer import ACLayer
+from pybrain.structure.modules.aclayer import ACLayer, ACLayerMLP
 
 def handler(signum, frame):
     print ('Signal handler called with signal', signum)
@@ -18,23 +18,30 @@ def main(args):
     # install stop handler
     signal.signal(signal.SIGINT, handler)
 
-    num_episodes = 1
+    num_episodes = 10
     len_episode = 100000
+
+    indim = 4  # sensor dim
+    outdim = 3 # motor dimx
+    
 
     # environment
     env = ArmEnvironment(len_episode=len_episode)
     # combined learning module
-    module = ACLayer(indim = 2, outdim = 3, hdim = 500)
+    module = ACLayer(indim = indim, outdim = outdim, hdim = 500)
+    # module = ACLayerMLP(indim = indim, outdim = outdim, hdim = 10)
     # task
     task = CartesianTask(env, maxsteps=len_episode)
     # explorer
-    explorer = NormalExplorer2(dim = 3, sigma = 5e-1) # 1e-1
+    explorer = NormalExplorer2(dim = outdim, sigma = 5e-3) # 1e-1
     # learner
-    # alpha = 1e-2
-    # beta  = 1e-1
-    alpha = 1e-3
-    beta  = 1e-2
-    gamma = 9.9e-1
+    alpha = 2e-4
+    beta  = 7e-1
+    # alpha = 1e-3
+    # beta  = 1e-2
+    gamma = 9.99e-1
+    # gamma = 5e-2
+    # gamma = 1e-1
     learner = CACLA(module, task, alpha=alpha, beta=beta, gamma=gamma)
     learner.explorer = explorer
     # agent
