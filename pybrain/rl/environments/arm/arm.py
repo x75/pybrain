@@ -56,6 +56,11 @@ class ArmEnvironment(Environment):
     def performAction(self, action):
         # print "arm:performAction", action
         self.action += np.asarray(action)
+        for i in range(self.indim):
+            if self.action[i] > np.pi:
+                self.action[i] -= 2*np.pi
+            elif self.action[i] < -np.pi:
+                self.action[i] += 2*np.pi
         # self.action[0] = np.clip(self.action[0], 0, np.pi/2)
         self.step()
     
@@ -63,11 +68,12 @@ class ArmEnvironment(Environment):
         self.pos = self.arm.compute_sensori_effect(self.action.flatten())
         # self.sensors[0,0] = self.pos[0]
         # self.sensors[1,0] = self.pos[1]
-        self.sensors[0,0] = self.action[0]
-        self.sensors[1,0] = self.action[1]
+        # print __name__, self.action
+        self.sensors[0,0] = self.action[0] / np.pi
+        self.sensors[1,0] = self.action[1] / np.pi
         # self.sensors[self.outdim/2:] = (self.target.T - self.pos).T
         self.sensors[self.outdim/2:] = self.target
-        time.sleep(0.001)
+        time.sleep(0.01)
         
     def getPosition(self):
         # return self.sensors[0:2].reshape((2))

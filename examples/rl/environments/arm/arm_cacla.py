@@ -4,10 +4,10 @@ import argparse, rospy, sys, signal
 from pybrain.rl.environments.arm import ArmEnvironment, CartesianTask#, StabilizationTaskVel
 from pybrain.rl.agents import LearningAgent
 from pybrain.rl.explorers import NormalExplorer2
-from pybrain.rl.learners import CACLA
+from pybrain.rl.learners import CACLA, CACLA2
 from pybrain.rl.learners.valuebased import ActionValueNetwork
 from pybrain.rl.experiments import ContinuousExperiment
-from pybrain.structure.modules.aclayer import ACLayer, ACLayerMLP
+from pybrain.structure.modules.aclayer import ACLayer, ACLayerMLP, ACLayerSVR
 
 def handler(signum, frame):
     print ('Signal handler called with signal', signum)
@@ -28,21 +28,24 @@ def main(args):
     # environment
     env = ArmEnvironment(len_episode=len_episode)
     # combined learning module
-    module = ACLayer(indim = indim, outdim = outdim, hdim = 500)
-    # module = ACLayerMLP(indim = indim, outdim = outdim, hdim = 10)
+    # module = ACLayer(indim = indim, outdim = outdim, hdim = 100)
+    module = ACLayerMLP(indim = indim, outdim = outdim, hdim = 10)
+    # module = ACLayerSVR(indim = indim, outdim = outdim, hdim = 500)
     # task
     task = CartesianTask(env, maxsteps=len_episode)
     # explorer
-    explorer = NormalExplorer2(dim = outdim, sigma = 1e-3) # 1e-1
+    explorer = NormalExplorer2(dim = outdim, sigma = 5e-3) # 1e-1
     # learner
     alpha = 2e-3
-    beta  = 7e-1
+    beta  = 7e-3
     # alpha = 1e-3
     # beta  = 1e-2
-    gamma = 9.99e-1
+    # gamma = 9.99e-1
+    gamma = 9e-1
     # gamma = 5e-2
     # gamma = 1e-1
     learner = CACLA(module, task, alpha=alpha, beta=beta, gamma=gamma, explorer=explorer)
+    # learner = CACLA2(module, task, alpha=alpha, beta=beta, gamma=gamma, explorer=explorer)
     # learner.explorer = explorer
     # agent
     agent = LearningAgent(module, learner)

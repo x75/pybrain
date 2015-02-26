@@ -15,3 +15,4 @@ from pybrain.structure.modules.module import Module
 from pybrain.structure.modules.relulayer import ReluLayer
 from pybrain.structure.modules.aclayer import ACLayer
 from pybrain.structure.modules.aclayer import ACLayerMLP
+from pybrain.structure.modules.aclayer import ACLayerSVR

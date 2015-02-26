@@ -109,6 +109,8 @@ class CartesianTask(EpisodicTask):
         if self.t % 1000 == 0:
             self.env.settarget()
             print "cartesiantask:new target", self.env.target
+
+        reward = 0.
         
         # target = 0. # for e.g. velocity control
         target = self.env.target # -0.4
@@ -125,8 +127,12 @@ class CartesianTask(EpisodicTask):
         self.err = np.sum(np.abs(err))
         
         # reward = -np.sum(np.square(err))
-        reward = -self.err
         # reward = -np.sum(np.square(vel))
+        # reward = -self.err
+        if self.err < 0.5:
+            reward = 1.
+        else:
+            reward = -1.
         
         # print "cartesiantask:(sensors, target) =", sensors, target
         # print "stabilizationtask.py:getReward:err", err

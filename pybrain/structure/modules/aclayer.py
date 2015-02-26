@@ -6,6 +6,9 @@ from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.datasets import SupervisedDataSet
 # from pybrain.structure.modules.linearlayer import LinearLayer
 from pybrain.structure.modules.module import Module
+# scikit stuff
+from sklearn.svm import SVR
+from sklearn.gaussian_process import GaussianProcess
 
 import numpy as np
 
@@ -18,8 +21,8 @@ class ACLayer(Module):
         self.hdim = hdim
         self.indim = indim
         self.outdim = outdim
-        self.winamp = 1.
-        self.wactamp = 1.
+        self.winamp = 2.
+        self.wactamp = 2.
         # V approximation
         self.V = np.zeros((hdim, 1))
         self.Vactf = lambda x: x
@@ -107,6 +110,7 @@ class ACLayerMLP(Module):
         self.indim = indim
         self.outdim = outdim
 
+        # approximators
         self.Vnet = buildNetwork(self.indim, self.hdim, 1, hiddenclass=TanhLayer, outclass=LinearLayer, bias=True)
         self.Vds = SupervisedDataSet(self.indim, 1)
         self.Anet = buildNetwork(self.indim, self.hdim, self.outdim, hiddenclass=TanhLayer, outclass=LinearLayer, bias=True)
@@ -130,6 +134,51 @@ class ACLayerMLP(Module):
 
     def _forwardImplementation(self, inbuf, outbuf):
         outbuf[:] = self.Anet.activate(inbuf)
+
+    def _backwardImplementation(self, outerr, inerr, outbuf, inbuf):
+        inerr[:] = outerr
+
+class ACLayerSVR(Module):
+    """Module combining value (critic) and action (actor) approximation for CACLA learner, SVR variant"""
+    def __init__(self, indim=1, outdim=1, hdim=1):
+        Module.__init__(self, indim, outdim)
+        self.hdim = hdim
+        self.indim = indim
+        self.outdim = outdim
+
+        # approximators
+        # self.Vsvr = SVR(kernel='rbf', C=1e3, gamma=0.1)
+        # self.Asvr = SVR(kernel='rbf', C=1e3, gamma=0.1)
+        self.Vsvr = GaussianProcess(theta0=1e2)#, thetaL=1e-4, thetaU=1e-1)
+        self.Asvr = GaussianProcess(theta0=1e2)#, thetaL=1e-4, thetaU=1e-1)
+        dummy_x = np.random.uniform(-1e-2, 1e-2, (2, self.indim))
+        dummy_y_V = np.random.uniform(-1e-2, 1e-2, (2, 1))
+        dummy_y_A = np.random.uniform(-1e-2, 1e-2, (2, self.outdim))
+        print "dummy_x", dummy_x.shape, dummy_x
+        print "dummy_y_V", dummy_y_V
+        print "dummy_y_A", dummy_y_A.shape, dummy_y_A
+        self.Vsvr.fit(dummy_x, dummy_y_V)
+        self.Asvr.fit(dummy_x, dummy_y_A)
+        print "GP predict V", self.Vsvr.predict(dummy_x[0], eval_MSE=True)
+        print "GP predict A", self.Asvr.predict(dummy_x[0,:], eval_MSE=True)
+
+
+    def trainV(self, beta, target, target_, state):
+        # print __name__, state, target
+        self.Vsvr.fit(state, target)
+        
+    def trainA(self, alpha, target, target_, state):
+        self.Asvr.fit(state, target)
+
+    def getValue(self, state):
+        # print __name__, state
+        return self.Vsvr.predict(state)
+        
+    def getAction(self, state):
+        return self.Asvr.predict(state)
+
+    def _forwardImplementation(self, inbuf, outbuf):
+        outbuf[:] = self.getAction(inbuf)
 
     def _backwardImplementation(self, outerr, inerr, outbuf, inbuf):
         inerr[:] = outerr

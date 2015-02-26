@@ -72,8 +72,8 @@ def main(args):
     alpha = 1e-3
     beta  = 1e-2
     gamma = 9.9e-1
-    learner = CACLA(module, task, alpha=alpha, beta=beta, gamma=gamma)
-    learner.explorer = explorer
+    learner = CACLA(module, task, alpha=alpha, beta=beta, gamma=gamma, explorer=explorer)
+    # learner.explorer = explorer
     # agent
     agent = LearningAgent(module, learner)
     # experiment
