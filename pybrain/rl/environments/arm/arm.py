@@ -14,11 +14,13 @@ class ArmEnvironment(Environment):
     def __init__(self, len_episode=1000):
         self.arm = explEnvironment.from_configuration('simple_arm', 'low_dimensional')
         self.arm.noise = 0.0
+        # print dir(self.arm)
         # else:
         #     self.arm.noise = 0.02
         # print dir(self.arm)
         print "arm: length ratio", self.arm.length_ratio
         print "arm: ndims", self.arm.conf.m_ndims
+        print "arm: lengths", self.arm.lengths
         self.settarget()
 
         self.sensors = np.zeros((self.outdim,1))
