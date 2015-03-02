@@ -30,15 +30,16 @@ class ArmRos(object):
         print "arm: ndims", self.arm.conf.m_ndims
         print "arm: lengths", self.arm.lengths
         
+        # self.sub_target = rospy.Subscriber("/robot/0/target", Int32, self.cb_target)
         self.sub_reset = rospy.Subscriber("/robot/0/reset", Int32, self.cb_reset)
-        self.sub_motors = rospy.Subscriber("/robot/0/motors", Float64MultiArray, self.cb_motors)
-        self.sensor_msg = Float64MultiArray()
-        # self.pub_sensors = rospy.Publisher("/sensors", Float64MultiArray, queue_size=1)
-        # self.pub_pos1 = rospy.Publisher("/robot/0/pos", Float32MultiArray, queue_size=1)
-        # self.pub_pos2 = rospy.Publisher("/robot/1/pos", Float32MultiArray, queue_size=1)
-        self.pub_sensors = rospy.Publisher("/robot/0/sensors", Float64MultiArray)
-        self.pub_pos1 = rospy.Publisher("/robot/0/pos", Float32MultiArray)
-        self.pub_pos2 = rospy.Publisher("/robot/1/pos", Float32MultiArray)
+        self.sub_motors = rospy.Subscriber("/robot/0/motors", Float32MultiArray, self.cb_motors)
+        self.sensor_msg = Float32MultiArray()
+        self.pub_sensors = rospy.Publisher("/robot/0/sensors", Float32MultiArray, queue_size=1)
+        self.pub_pos1 = rospy.Publisher("/robot/0/pos", Float32MultiArray, queue_size=1)
+        self.pub_pos2 = rospy.Publisher("/robot/1/pos", Float32MultiArray, queue_size=1)
+        # self.pub_sensors = rospy.Publisher("/robot/0/sensors", Float64MultiArray)
+        # self.pub_pos1 = rospy.Publisher("/robot/0/pos", Float32MultiArray)
+        # self.pub_pos2 = rospy.Publisher("/robot/1/pos", Float32MultiArray)
         self.pos1_msg = Float32MultiArray()
         self.rate = rospy.Rate(1000) # 10hz
 
@@ -46,13 +47,17 @@ class ArmRos(object):
         time.sleep(2)
 
     def cb_reset(self, msg):
-        self.motors = np.random.uniform(-np.pi, np.pi, (self.actionDimension,))
+        self.motors = np.zeros((self.actionDimension,))
+        self.motors[0] = np.random.uniform(0, np.pi/2.)
+        self.motors[1] = np.random.uniform(-np.pi, np.pi)
         self.motors[-1] = 0
         print "reset", self.motors
         
     def cb_motors(self, msg):
         # print msg
-        self.motors += np.asarray(msg.data) * 0.1
+        # self.motors += np.asarray(msg.data) * np.asarray([0.1, 0.01, 0])
+        self.motors += np.asarray(msg.data) * np.asarray([0.1, 0.1, 0]) * 0.1
+        # self.motors[1] *= 0.1
         self.motors[-1] = 0
         # print "motors", motors
         # clip motors
@@ -73,6 +78,8 @@ class ArmRos(object):
                 print "motors", self.motors
                 # self.arm.performAction(self.motors)
                 self.sensors[0:2] = self.arm.compute_sensori_effect(self.motors.flatten())
+                self.sensors[2] = 0. # 
+                self.sensors[3] = 0. # 
                 self.sensors[2] = self.motors[0]
                 self.sensors[3] = self.motors[1]
                 (x1, x2) = joint_positions(self.motors.flatten(), lengths(3, 3.))
