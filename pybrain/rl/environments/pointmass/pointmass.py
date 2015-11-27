@@ -1,5 +1,5 @@
 from pybrain.rl.environments.environment import Environment
-from ode_inert_system import InertParticle2D
+from smplib.ode_inert_system import InertParticle2D
 
 import numpy as np
 import time
